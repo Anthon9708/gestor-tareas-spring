@@ -24,7 +24,7 @@ Si quieres probar este proyecto localmente, sigue estos pasos:
 
 1. Clona este repositorio:
    ```bash
-   git clone [https://github.com/TU-USUARIO/gestor-tareas-spring.git](https://github.com/TU-USUARIO/gestor-tareas-spring.git)
+   git clone https://github.com/TU-USUARIO/gestor-tareas-spring.git
 
 *(Asegúrate de cambiar `TU-USUARIO` en el enlace de git clone por tu usuario real de GitHub).*
 
