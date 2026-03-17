@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Mi Gestor de Tareas</title>
+    <style>
+        body { font-family: Arial, sans-serif; margin: 40px; background-color: #f4f4f9; }
+        .container { max-width: 500px; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); }
+        input[type="text"] { width: 70%; padding: 10px; margin-right: 10px; }
+        button { padding: 10px 15px; background: #28a745; color: white; border: none; cursor: pointer; }
+        button:hover { background: #218838; }
+        ul { list-style-type: none; padding: 0; }
+        li { padding: 10px; background: #eee; margin-top: 5px; display: flex; justify-content: space-between; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Mis Tareas (Spring Boot + JS)</h2>
+
+    <div>
+        <input type="text" id="input-tarea" placeholder="Ej. Estudiar Java...">
+        <button onclick="guardarTarea()">Añadir</button>
+    </div>
+
+    <ul id="lista-tareas"></ul>
+</div>
+
+<script>
+    function cargarTareas() {
+        fetch('/api/tareas')
+            .then(respuesta => respuesta.json())
+            .then(tareas => {
+                const lista = document.getElementById('lista-tareas');
+                lista.innerHTML = '';
+
+                tareas.forEach(tarea => {
+                    lista.innerHTML += `
+                        <li style="text-decoration: ${tarea.completada ? 'line-through' : 'none'}; color: ${tarea.completada ? 'gray' : 'black'};">
+                            <span>${tarea.titulo}</span>
+                            <div>
+                                <button onclick="cambiarEstado(${tarea.id}, '${tarea.titulo}', ${tarea.completada})" style="background: #007bff; margin-right: 5px;">
+                                    ${tarea.completada ? 'Deshacer' : '✔ Completar'}
+                                </button>
+                                <button onclick="borrarTarea(${tarea.id})" style="background: #dc3545;">🗑️ Borrar</button>
+                            </div>
+                        </li>
+                    `;
+                });
+            });
+    }
+
+    function guardarTarea() {
+        const titulo = document.getElementById('input-tarea').value;
+        if(titulo.trim() === '') return;
+
+        const nuevaTarea = {
+            titulo: titulo,
+            completada: false
+        };
+
+        fetch('/api/tareas', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(nuevaTarea)
+        }).then(() => {
+            document.getElementById('input-tarea').value = '';
+            cargarTareas();
+        });
+    }
+
+    function borrarTarea(id) {
+        fetch(`/api/tareas/${id}`, {
+            method: 'DELETE'
+        }).then(() => {
+            cargarTareas();
+        });
+    }
+
+    function cambiarEstado(id, tituloActual, estadoActual) {
+        const tareaActualizada = {
+            titulo: tituloActual,
+            completada: !estadoActual
+        };
+
+        fetch(`/api/tareas/${id}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(tareaActualizada)
+        }).then(() => {
+            cargarTareas();
+        });
+    }
+
+    cargarTareas();
+</script>
+
+</body>
+</html>
